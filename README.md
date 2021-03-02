@@ -7,7 +7,9 @@ For example, press a button on your remote in one room and having it change the 
 You can make a web page that can be used to submit the HTTP form POST without the remote.  Send the signals from any web page.
 
 Modules used:
-* Sourcekit 161002922 Infrared LED 1W 350mA Transmitter Module
+* Infrared LED 1W 350mA Transmitter Module (Sourcekit 161002922)
   * Sold on Ebay and Aliexpress: "1w infrared module"
-* YwRobot 545754 IR Receiver Module
+* IR Receiver Module (YwRobot 545754)
+ * Sold on Ebay and Aliexpress as a set pair, query: "IR Receiver Module"
 * 2x ESP8266 Microcontrollers
+* 6x female female jumper wires
