@@ -10,6 +10,6 @@ Modules used:
 * Infrared LED 1W 350mA Transmitter Module (Sourcekit 161002922)
   * Sold on Ebay and Aliexpress: "1w infrared module"
 * IR Receiver Module (YwRobot 545754)
- * Sold on Ebay and Aliexpress as a set pair, query: "IR Receiver Module"
+  * Sold on Ebay and Aliexpress as a set pair, query: "IR Receiver Module"
 * 2x ESP8266 Microcontrollers
 * 6x female female jumper wires
