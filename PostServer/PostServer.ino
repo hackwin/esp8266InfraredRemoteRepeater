@@ -30,7 +30,7 @@ IRsend irsend(4); // Connect your IR LED module to ESP8266 Pin D2
 ESP8266WebServer server(80); // TCP Port 80 (Standard HTTP)
 
 // declare function signatures to bypass forward reference checks by compiler
-void handleRoot(void), handlePlainFormPost(void), handleNotFound(void), errorLoop(String); 
+void handleRoot(void), handlePlainFormPost(void), handleNotFound(void);
 
 // web form to send IR remote signal data
 const char postForms[] PROGMEM = R"=====(
