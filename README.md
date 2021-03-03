@@ -1,6 +1,6 @@
 # esp8266InfraredRemoteRepeater
 
-Repeat an infrared (IR) remote signal over WiFi on your LAN or over the Internet.  The signal gets sent over HTTP as a form POST request.  An HTTP server receives the ir signal as plain-text and re-transmits it to your device.  
+Repeat an infrared (IR) remote signal over WiFi on your LAN or over the Internet.  The signal gets sent over HTTP as a form POST request.  An HTTP server receives the IR signal as plain-text and re-transmits it to your device.  
 
 For example, press a button on your remote in one room and having it change the channel in another room.  Access your TV set-box over the Internet so you can remotely change the channel using your phone or laptop.
 
