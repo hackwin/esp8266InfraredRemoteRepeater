@@ -4,6 +4,7 @@
 
 // By Jesse Campbell
 // March 2021
+// Updated November 2021
 // http://www.jbcse.com
 
 /* 
@@ -19,9 +20,9 @@ Tools > Boards > ESP8266 Boards (2.6.3) > Generic ESP8266 Module
 #include <IRsend.h>
 #include <ESP8266WebServer.h>
 
-const char* wifiSSID = "???"; // change this to your WiFi AP name!
+const char* wifiSSID = ???"; // change this to your WiFi AP name!
 const char* password = "???"; // change this to your WiFi AP pass!
-IPAddress staticIP(192, 168, 1, 234); // change this to an unused IP address on your network
+IPAddress staticIP(10, 0, 0, 88); // change this to an unused IP address on your network
 IPAddress gateway (staticIP[0], staticIP[1], staticIP[2], 1); // you may need to change this
 IPAddress subnet  (255, 255, 255, 0);
 IPAddress dns     (1, 1, 1, 1);
@@ -29,8 +30,10 @@ IPAddress dns     (1, 1, 1, 1);
 IRsend irsend(4); // Connect your IR LED module to ESP8266 Pin D2
 ESP8266WebServer server(80); // TCP Port 80 (Standard HTTP)
 
+const int RELAY_RESET_PIN = 16; //ESP8266 Pin D0, breaks power to the box using relay.  Relay is NC and disconnected when HIGH
+
 // declare function signatures to bypass forward reference checks by compiler
-void handleRoot(void), handlePlainFormPost(void), handleNotFound(void);
+void handleRoot(void), handlePlainFormPost(void), handleNotFound(void), handleReset(void);
 
 // web form to send IR remote signal data
 const char postForms[] PROGMEM = R"=====(
@@ -94,6 +97,7 @@ const char postForms[] PROGMEM = R"=====(
 void setup() {
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(RELAY_RESET_PIN, OUTPUT);
   
   if(String(wifiSSID) == "???" || String(password) == "???"){
     while(true){
@@ -124,6 +128,7 @@ void setup() {
   Serial.println(WiFi.macAddress());
 
   server.on("/", handleRoot);
+  server.on("/reset/", handleReset);
   server.on("/ir-remote-signal/", handlePlainFormPost);
   server.onNotFound(handleNotFound);  
   server.begin();
@@ -193,4 +198,11 @@ void handlePlainFormPost() {
 
 void handleNotFound() {
   server.send(404, "text/plain", "File Not Found");
+}
+
+void handleReset(){
+  digitalWrite(RELAY_RESET_PIN, HIGH);
+  delay(3000);
+  digitalWrite(RELAY_RESET_PIN, LOW);
+  server.send(200, "text/plain", "Power to box has been reset");
 }
