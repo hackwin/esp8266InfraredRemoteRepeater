@@ -13,5 +13,10 @@ Modules used:
   * Sold on Ebay and Aliexpress usually in pairs, query: "IR Receiver Module"
 * 2x ESP8266 NodeMCU Microcontrollers
 * 6x female-female dupont jumper wires
+* 1x 1 channel relay module (optional)
 
 ![alt text](esp8266-infrared-wifi-http-repeater-diagram.jpg)
+
+![alt text](web-interface-screenshot.png)
+
+![alt text](esp8266-web-server-screenshot.png)
