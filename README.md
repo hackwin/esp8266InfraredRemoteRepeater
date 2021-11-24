@@ -15,8 +15,8 @@ Modules used:
 * 6x female-female dupont jumper wires
 * 1x 1 channel relay module (optional)
 
-![alt text](esp8266-infrared-wifi-http-repeater-diagram.jpg)
+<kbd>![alt text](esp8266-infrared-wifi-http-repeater-diagram.jpg)</kbd>
 
-![alt text](web-interface-screenshot.png)
+<kbd>![alt text](web-interface-screenshot.png)</kbd>
 
-![alt text](esp8266-web-server-screenshot.png)
+<kbd>![alt text](esp8266-web-server-screenshot.png)</kbd>
