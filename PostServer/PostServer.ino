@@ -4,7 +4,7 @@
 
 // By Jesse Campbell
 // March 2021
-// Updated November 2021
+// Updated March 2022
 // http://www.jbcse.com
 
 /* 
@@ -20,9 +20,9 @@ Tools > Boards > ESP8266 Boards (2.6.3) > Generic ESP8266 Module
 #include <IRsend.h>
 #include <ESP8266WebServer.h>
 
-const char* wifiSSID = ???"; // change this to your WiFi AP name!
+const char* wifiSSID = "???"; // change this to your WiFi AP name!
 const char* password = "???"; // change this to your WiFi AP pass!
-IPAddress staticIP(10, 0, 0, 88); // change this to an unused IP address on your network
+IPAddress staticIP(?, ?, ?, ?); // change this to an unused IP address on your network
 IPAddress gateway (staticIP[0], staticIP[1], staticIP[2], 1); // you may need to change this
 IPAddress subnet  (255, 255, 255, 0);
 IPAddress dns     (1, 1, 1, 1);
@@ -110,7 +110,7 @@ void setup() {
   }
 
   irsend.begin();
-  WiFi.config(staticIP, subnet, gateway, dns);  
+  WiFi.config(staticIP, gateway, subnet, dns);  
   WiFi.begin(wifiSSID, password);
 
   Serial.println();
@@ -151,46 +151,70 @@ void handlePlainFormPost() {
     server.send(200, "text/plain", "POST body received was:\n" + server.arg("plain"));
     Serial.println("HTTP request received! Re-transmitting IR signal!");
 
-    boolean first;
+    boolean first = true;
     uint16_t irSignal[1024];
     int arrayIndex = 0, arraySize = 0;
-    String element, sig = server.arg("plain");
+    String element = "", sig = server.arg("plain");
   
    for(int i=0; i<sig.length(); i++){
       char inByte = sig.charAt(i);
-      if(inByte == 'p' || inByte == '=' || inByte == ' '){
+      if(inByte == 'p' || inByte == '=' || inByte == '\r' || inByte == '\n'){
+        Serial.print("Skipping char: ");
+        if(inByte != '\r' && inByte != '\n'){
+          Serial.print(inByte);
+        }
+        else{
+          Serial.print("ascii(");
+          Serial.print((int)(inByte));
+          Serial.print(")");
+        }
+        Serial.println();
         continue;
       }
+      else if(inByte != ',' && inByte != ';'){
+        Serial.print("Appending digit: ");
+        Serial.print(inByte);
+        Serial.print(" ");
+        Serial.print((int)(inByte));
+        Serial.print(", to element: ");
+        Serial.println(element);
+        element += inByte;
+      }
+      else if(first == false && inByte == ','){
+        Serial.print("Found end of array element[");
+        Serial.print(arrayIndex);
+        Serial.print("]: ");
+        unsigned int e = element.toInt();
+        Serial.println(e);
+        element = "";
+        irSignal[arrayIndex] = e;
+        arrayIndex++;
+      }
       else if(inByte == ';'){  // request ends with semicolon
+        Serial.print("Found last array element[");
+        Serial.print(arrayIndex);
+        Serial.print("]: ");
+        Serial.print(element);
+        Serial.println();
         irSignal[arrayIndex] = element.toInt();        
+        Serial.println("Sending IR signal!: ");
+        for(int i=0; i<arraySize; i++){
+          Serial.print(irSignal[i]);
+          Serial.print(" ");
+        }
+        Serial.println();
+        
         irsend.sendRaw(irSignal, arraySize, 38);  // Send a raw data capture at 38kHz
         element = "";
         first = true;
         arrayIndex = 0;
       }
-      else if(inByte != ','){
-        //Serial.print("Appending digit: ");
-        //Serial.print(inByte);
-        //Serial.print(", to element: ");
-        //Serial.println(element);
-        element += inByte;
-      }
       else if (first == true && inByte == ','){ // request begins with length
-        //Serial.print("Found end of array size: ");
+        Serial.print("Found end of array size: ");
         arraySize = element.toInt();
-        //Serial.println(arraySize);
+        Serial.println(arraySize);
         first = false;
         element = "";
-      }
-      else if(first == false && inByte == ','){
-        //Serial.print("Found end of array element[");
-        //Serial.print(arrayIndex);
-        //Serial.print("]: ");
-        unsigned int e = element.toInt();
-        //Serial.println(e);
-        element = "";
-        irSignal[arrayIndex] = e;
-        arrayIndex++;
       }
     }
   }

@@ -4,6 +4,7 @@
 
 // By Jesse Campbell
 // March 2021
+// Updated March 2022
 // http://www.jbcse.com
 
 /* 
@@ -19,11 +20,15 @@ Tools > Boards > ESP8266 Boards (2.6.3) > Generic ESP8266 Module
 #include <IRtext.h>
 #include <IRutils.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
+
+ESP8266WiFiMulti WiFiMulti;
 
 const char* wifiSSID = "???"; // change this to your WiFi AP name!
 const char* password = "???"; // change this to your WiFi AP pass!
-const char* serverIP = "192.168.1.234"; // the other ESP8266 with the IR LED module; see PostServer.ino
+const char* serverIP = "?.?.?.?"; // the other ESP8266 with the IR LED module; see PostServer.ino
 const String url = "http://"+String(serverIP)+"/ir-remote-signal/";
 
 const uint16_t kRecvPin = 14; // Port D5 on ESP8266
@@ -38,6 +43,7 @@ const uint8_t kTimeout = 15;
 IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, true);
 decode_results results;
 HTTPClient http;
+WiFiClient client;
 
 void setup(){
   Serial.begin(115200);
@@ -54,11 +60,13 @@ void setup(){
   }
   
   irrecv.enableIRIn();  // Start the receiver
-  WiFi.begin(wifiSSID, password);
+  
+  WiFi.mode(WIFI_STA);
+  WiFiMulti.addAP(wifiSSID, password);
 
   Serial.println();
   Serial.print("Connecting to access point");
-  while(WiFi.status() != WL_CONNECTED){
+  while(WiFiMulti.run() != WL_CONNECTED){
     delay(500);
     Serial.print('.');
   }
@@ -70,24 +78,26 @@ void setup(){
 }
 
 void loop(){
-  if ((WiFi.status() == WL_CONNECTED)) { // wait for WiFi connection
+  if (WiFiMulti.run() == WL_CONNECTED) { // wait for WiFi connection
     if (irrecv.decode(&results)) { // check if the IR code has been received
       const decode_results * r1 = &results; // decode IR code
       String postContent = "p="; // begin building HTTP Post body
       postContent += String(r1->rawlen-1);
       for(int i = 1; i < r1->rawlen; i++){
-        postContent += "," + (r1->rawbuf[i]*2);
+        postContent += String(",") + String(r1->rawbuf[i]*2);
       }
       postContent += ";";      
       yield();
-      
-      http.begin(url);
+
+      //Serial.println(postContent);
+    
+      http.begin(client, url);
       http.addHeader("Content-Type", "text/plain");
       Serial.println("Received IR signal! Sending data to HTTP server!");
       int httpCode = http.POST(postContent);
-      //String payload = http.getString();
-      //Serial.println(httpCode);
-      //Serial.print(payload);
+      String payload = http.getString();
+      Serial.println(httpCode);
+      Serial.print(payload);
       http.end();
       yield();
     }
