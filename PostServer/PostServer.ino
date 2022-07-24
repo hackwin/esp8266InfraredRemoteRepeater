@@ -95,7 +95,7 @@ const char postForms[] PROGMEM = R"=====(
 )=====";
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(1000000);
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(RELAY_RESET_PIN, OUTPUT);
   
