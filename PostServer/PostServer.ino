@@ -3,8 +3,6 @@
 // Arduino C++, written in Arduino IDE, GNU GPL 3 License
 
 // By Jesse Campbell
-// March 2021
-// Updated March 2022
 // http://www.jbcse.com
 
 /* 
@@ -30,7 +28,7 @@ IPAddress dns     (1, 1, 1, 1);
 IRsend irsend(4); // Connect your IR LED module to ESP8266 Pin D2
 ESP8266WebServer server(80); // TCP Port 80 (Standard HTTP)
 
-const int RELAY_RESET_PIN = 16; //ESP8266 Pin D0, breaks power to the box using relay.  Relay is NC and disconnected when HIGH
+const int RELAY_RESET_PIN = 16; //ESP8266 Pin D0, breaks power to the box using a 3.3v relay module.  Relay is normally connected (NC) and disconnected when set OUTPUT & HIGH
 
 // declare function signatures to bypass forward reference checks by compiler
 void handleRoot(void), handlePlainFormPost(void), handleNotFound(void), handleReset(void);
@@ -97,7 +95,6 @@ const char postForms[] PROGMEM = R"=====(
 void setup() {
   Serial.begin(1000000);
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(RELAY_RESET_PIN, OUTPUT);
   
   if(String(wifiSSID) == "???" || String(password) == "???"){
     while(true){
@@ -225,8 +222,12 @@ void handleNotFound() {
 }
 
 void handleReset(){
+  pinMode(RELAY_RESET_PIN, OUTPUT);
+  delay(3000);
   digitalWrite(RELAY_RESET_PIN, HIGH);
   delay(3000);
   digitalWrite(RELAY_RESET_PIN, LOW);
+  pinMode(RELAY_RESET_PIN, INPUT);
+  delay(3000);
   server.send(200, "text/plain", "Power to box has been reset");
 }
